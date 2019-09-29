@@ -22,11 +22,11 @@ const messages = defineMessages({
 });
 
 export const formatTime = secondsNum => {
-  let hours   = Math.floor(secondsNum / 3600);
+  let hours = Math.floor(secondsNum / 3600);
   let minutes = Math.floor((secondsNum - (hours * 3600)) / 60);
   let seconds = secondsNum - (hours * 3600) - (minutes * 60);
 
-  if (hours   < 10) hours   = '0' + hours;
+  if (hours < 10) hours = '0' + hours;
   if (minutes < 10) minutes = '0' + minutes;
   if (seconds < 10) seconds = '0' + seconds;
 
@@ -48,15 +48,15 @@ export const findElementPosition = el => {
   }
 
   const docEl = document.documentElement;
-  const body  = document.body;
+  const body = document.body;
 
   const clientLeft = docEl.clientLeft || body.clientLeft || 0;
   const scrollLeft = window.pageXOffset || body.scrollLeft;
-  const left       = (box.left + scrollLeft) - clientLeft;
+  const left = (box.left + scrollLeft) - clientLeft;
 
   const clientTop = docEl.clientTop || body.clientTop || 0;
   const scrollTop = window.pageYOffset || body.scrollTop;
-  const top       = (box.top + scrollTop) - clientTop;
+  const top = (box.top + scrollTop) - clientTop;
 
   return {
     left: Math.round(left),
@@ -118,6 +118,7 @@ class Video extends React.PureComponent {
     link: PropTypes.node,
     autoPlay: PropTypes.bool,
     defaultVolume: PropTypes.number,
+    quote: PropTypes.bool,
   };
 
   state = {
@@ -279,7 +280,7 @@ class Video extends React.PureComponent {
     }
   }
 
-  componentDidMount () {
+  componentDidMount() {
     document.addEventListener('fullscreenchange', this.handleFullscreenChange, true);
     document.addEventListener('webkitfullscreenchange', this.handleFullscreenChange, true);
     document.addEventListener('mozfullscreenchange', this.handleFullscreenChange, true);
@@ -289,7 +290,7 @@ class Video extends React.PureComponent {
     window.addEventListener('resize', this.handleResize, { passive: true });
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     window.removeEventListener('scroll', this.handleScroll);
     window.removeEventListener('resize', this.handleResize);
 
@@ -299,13 +300,13 @@ class Video extends React.PureComponent {
     document.removeEventListener('MSFullscreenChange', this.handleFullscreenChange, true);
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (!is(nextProps.visible, this.props.visible) && nextProps.visible !== undefined) {
       this.setState({ revealed: nextProps.visible });
     }
   }
 
-  componentDidUpdate (prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) {
     if (prevState.revealed && !this.state.revealed && this.video) {
       this.video.pause();
     }
@@ -414,7 +415,7 @@ class Video extends React.PureComponent {
   }
 
   render () {
-    const { preview, src, inline, startTime, onOpenVideo, onCloseVideo, intl, alt, detailed, sensitive, link, editable, blurhash } = this.props;
+    const { preview, src, inline, startTime, onOpenVideo, onCloseVideo, intl, alt, detailed, sensitive, link, editable, blurhash, quote } = this.props;
     const { containerWidth, currentTime, duration, volume, buffer, dragging, paused, fullscreen, hovered, muted, revealed } = this.state;
     const progress = (currentTime / duration) * 100;
     const playerStyle = {};
@@ -422,9 +423,14 @@ class Video extends React.PureComponent {
     let { width, height } = this.props;
 
     if (inline && containerWidth) {
-      width  = containerWidth;
-      height = containerWidth / (16/9);
+      width = containerWidth;
+      height = containerWidth / (16 / 9);
 
+      playerStyle.height = height;
+    }
+
+    if (quote && height) {
+      height /= 2;
       playerStyle.height = height;
     }
 
