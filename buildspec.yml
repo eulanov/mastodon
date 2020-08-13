@@ -1,0 +1,74 @@
+version: 0.2
+
+# https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/userguide/ecs-cd-pipeline.html
+
+env:
+  parameter-store:
+    AWS_ACCOUNT_ID: "/m/build/AWS_ACCOUNT_ID"
+    REPOSITORY_URI: "/m/build/REPOSITORY_URI"
+    SIDEKIQ_DEFAULT: "/m/ecs/task/SIDEKIQ_DEFAULT"
+    SIDEKIQ_OTHERS: "/m/ecs/task/SIDEKIQ_OTHERS"
+    STREAMING: "/m/ecs/task/STREAMING"
+    WEB: "/m/ecs/task/WEB"
+    DEFAULT_LOCALE: "/m/DEFAULT_LOCALE"
+    LOCAL_DOMAIN: "/m/LOCAL_DOMAIN"
+    NODE_ENV: "/m/NODE_ENV"
+    OTP_SECRET: "/m/OTP_SECRET"
+    RAILS_ENV: "/m/RAILS_ENV"
+    SECRET_KEY_BASE: "/m/SECRET_KEY_BASE"
+    SINGLE_USER_MODE: "/m/SINGLE_USER_MODE"
+    STREAMING_CLUSTER_NUM: "/m/STREAMING_CLUSTER_NUM"
+    VAPID_PRIVATE_KEY: "/m/VAPID_PRIVATE_KEY"
+    VAPID_PUBLIC_KEY: "/m/VAPID_PUBLIC_KEY"
+    SMTP_FROM_ADDRESS: "/m/email/SMTP_FROM_ADDRESS"
+    SMTP_LOGIN: "/m/email/SMTP_LOGIN"
+    SMTP_PASSWORD: "/m/email/SMTP_PASSWORD"
+    SMTP_PORT: "/m/email/SMTP_PORT"
+    SMTP_SERVER: "/m/email/SMTP_SERVER"
+    SMTP_TLS: "/m/email/SMTP_TLS"
+    DB_HOST: "/m/postgres/DB_HOST"
+    DB_NAME: "/m/postgres/DB_NAME"
+    DB_PASS: "/m/postgres/DB_PASS"
+    DB_PORT: "/m/postgres/DB_PORT"
+    DB_USER: "/m/postgres/DB_USER"
+    REDIS_HOST: "/m/redis/REDIS_HOST"
+    REDIS_PORT: "/m/redis/REDIS_PORT"
+    M_AWS_ACCESS_KEY_ID: "/m/s3/AWS_ACCESS_KEY_ID"
+    M_AWS_SECRET_ACCESS_KEY: "/m/s3/AWS_SECRET_ACCESS_KEY"
+    S3_ALIAS_HOST: "/m/s3/S3_ALIAS_HOST"
+    S3_BUCKET: "/m/s3/S3_BUCKET"
+    S3_ENABLED: "/m/s3/S3_ENABLED"
+    S3_HOSTNAME: "/m/s3/S3_HOSTNAME"
+    S3_PROTOCOL: "/m/s3/S3_PROTOCOL"
+    S3_REGION: "/m/s3/S3_REGION"
+    MAX_THREADS: "/m/web/MAX_THREADS"
+    WEB_CONCURRENCY: "/m/web/WEB_CONCURRENCY"    
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      # - $(aws ecr get-login --no-include-email --region us-east-1)
+      # - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 894838575725.dkr.ecr.us-east-1.amazonaws.com
+      - REPOSITORY_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/mastodon"
+      - COMMIT_HASH="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-8)"
+      - IMAGE_TAG="${COMMIT_HASH:=latest}"
+      - IMAGE_URI="${REPOSITORY_URI}:${IMAGE_TAG}"
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Bulding the Docker image...
+      - docker build -t ${IMAGE_URI} .
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push ${IMAGE_URI}
+      - echo db:migrate...
+      - docker run --rm --env DEFAULT_LOCALE=${DEFAULT_LOCALE} --env LOCAL_DOMAIN=${LOCAL_DOMAIN} --env NODE_ENV=${NODE_ENV} --env OTP_SECRET=${OTP_SECRET} --env RAILS_ENV=${RAILS_ENV} --env SECRET_KEY_BASE=${SECRET_KEY_BASE} --env SINGLE_USER_MODE=${SINGLE_USER_MODE} --env STREAMING_CLUSTER_NUM=${STREAMING_CLUSTER_NUM} --env VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY} --env VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY} --env SMTP_FROM_ADDRESS=${SMTP_FROM_ADDRESS} --env SMTP_LOGIN=${SMTP_LOGIN} --env SMTP_PASSWORD=${SMTP_PASSWORD} --env SMTP_PORT=${SMTP_PORT} --env SMTP_SERVER=${SMTP_SERVER} --env SMTP_TLS=${SMTP_TLS} --env DB_HOST=${DB_HOST} --env DB_NAME=${DB_NAME} --env DB_PASS=${DB_PASS} --env DB_PORT=${DB_PORT} --env DB_USER=${DB_USER} --env REDIS_HOST=${REDIS_HOST} --env REDIS_PORT=${REDIS_PORT} --env AWS_ACCESS_KEY_ID=${M_AWS_ACCESS_KEY_ID} --env AWS_SECRET_ACCESS_KEY=${M_AWS_SECRET_ACCESS_KEY} --env S3_ALIAS_HOST=${S3_ALIAS_HOST} --env S3_BUCKET=${S3_BUCKET} --env S3_ENABLED=${S3_ENABLED} --env S3_HOSTNAME=${S3_HOSTNAME} --env S3_PROTOCOL=${S3_PROTOCOL} --env S3_REGION=${S3_REGION} --env MAX_THREADS=${MAX_THREADS} --env WEB_CONCURRENCY=${WEB_CONCURRENCY} ${IMAGE_URI} rails db:migrate
+      - echo Writing image definitions file...
+      - printf '[{"name":"mastodon","imageUri":"%s"}]' ${IMAGE_URI} > imagedefinitions.json
+artifacts:
+  files:
+    - imagedefinitions.json
