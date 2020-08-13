@@ -190,7 +190,7 @@ export default class Card extends React.PureComponent {
 
   render () {
     const { card, maxDescription, compact, quote } = this.props;
-    const { width, embedded } = this.state;
+    const { width, embedded, revealed } = this.state;
 
     if (card === null) {
       return null;
