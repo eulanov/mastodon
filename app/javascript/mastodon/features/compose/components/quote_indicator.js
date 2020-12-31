@@ -6,7 +6,6 @@ import IconButton from '../../../components/icon_button';
 import DisplayName from '../../../components/display_name';
 import { defineMessages, injectIntl } from 'react-intl';
 import ImmutablePureComponent from 'react-immutable-pure-component';
-import { isRtl } from '../../../rtl';
 import AttachmentList from 'mastodon/components/attachment_list';
 
 const messages = defineMessages({
@@ -45,14 +44,11 @@ class QuoteIndicator extends ImmutablePureComponent {
     }
 
     const content = { __html: status.get('contentHtml') };
-    const style   = {
-      direction: isRtl(status.get('search_index')) ? 'rtl' : 'ltr',
-    };
 
     return (
       <div className='quote-indicator'>
         <div className='quote-indicator__header'>
-          <div className='quote-indicator__cancel'><IconButton title={intl.formatMessage(messages.cancel)} icon='times' onClick={this.handleClick} /></div>
+          <div className='quote-indicator__cancel'><IconButton title={intl.formatMessage(messages.cancel)} icon='times' onClick={this.handleClick} inverted /></div>
 
           <a href={status.getIn(['account', 'url'])} onClick={this.handleAccountClick} className='quote-indicator__display-name'>
             <div className='quote-indicator__display-avatar'><Avatar account={status.get('account')} size={24} /></div>
@@ -60,7 +56,7 @@ class QuoteIndicator extends ImmutablePureComponent {
           </a>
         </div>
 
-        <div className='quote-indicator__content' style={style} dangerouslySetInnerHTML={content} />
+        <div className='quote-indicator__content' dangerouslySetInnerHTML={content} />
 
         {status.get('media_attachments').size > 0 && (
           <AttachmentList
