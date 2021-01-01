@@ -96,8 +96,8 @@ class Status extends ImmutablePureComponent {
     updateScrollBottom: PropTypes.func,
     cacheMediaWidth: PropTypes.func,
     cachedMediaWidth: PropTypes.number,
-    scrollKey: PropTypes.string,
     contextType: PropTypes.string,
+    scrollKey: PropTypes.string,
     deployPictureInPicture: PropTypes.func,
     pictureInPicture: ImmutablePropTypes.contains({
       inUse: PropTypes.bool,
@@ -507,9 +507,15 @@ class Status extends ImmutablePureComponent {
                 <Component
                   src={attachment.get('url')}
                   alt={attachment.get('description')}
+                  poster={attachment.get('preview_url') || status.getIn(['account', 'avatar_static'])}
+                  backgroundColor={attachment.getIn(['meta', 'colors', 'background'])}
+                  foregroundColor={attachment.getIn(['meta', 'colors', 'foreground'])}
+                  accentColor={attachment.getIn(['meta', 'colors', 'accent'])}
                   duration={attachment.getIn(['meta', 'original', 'duration'], 0)}
-                  peaks={[0]}
-                  height={70}
+                  width={this.props.cachedMediaWidth}
+                  height={110}
+                  cacheWidth={this.props.cacheMediaWidth}
+                  deployPictureInPicture={pictureInPicture.get('available') ? this.handleDeployPictureInPicture : undefined}
                   quote
                 />
               )}
@@ -523,6 +529,7 @@ class Status extends ImmutablePureComponent {
               {Component => (
                 <Component
                   preview={attachment.get('preview_url')}
+                  frameRate={attachment.getIn(['meta', 'original', 'frame_rate'])}
                   blurhash={attachment.get('blurhash')}
                   src={attachment.get('url')}
                   alt={attachment.get('description')}
@@ -532,6 +539,7 @@ class Status extends ImmutablePureComponent {
                   sensitive={quote_status.get('sensitive')}
                   onOpenVideo={this.handleOpenVideo}
                   cacheWidth={this.props.cacheMediaWidth}
+                  deployPictureInPicture={pictureInPicture.get('available') ? this.handleDeployPictureInPicture : undefined}
                   visible={this.state.showQuoteMedia}
                   onToggleVisibility={this.handleToggleQuoteMediaVisibility}
                   quote
@@ -547,7 +555,7 @@ class Status extends ImmutablePureComponent {
                   media={quote_status.get('media_attachments')}
                   sensitive={quote_status.get('sensitive')}
                   height={110}
-                  onOpenMedia={this.props.onOpenMedia}
+                  onOpenMedia={this.handleOpenMedia}
                   cacheWidth={this.props.cacheMediaWidth}
                   defaultWidth={this.props.cachedMediaWidth}
                   visible={this.state.showQuoteMedia}

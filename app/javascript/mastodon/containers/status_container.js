@@ -231,16 +231,16 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     dispatch(unblockDomain(domain));
   },
 
+  deployPictureInPicture (status, type, mediaProps) {
+    dispatch(deployPictureInPicture(status.get('id'), status.getIn(['account', 'id']), type, mediaProps));
+  },
+
   onQuoteToggleHidden (status) {
     if (status.get('quote_hidden')) {
       dispatch(revealQuote(status.get('id')));
     } else {
       dispatch(hideQuote(status.get('id')));
     }
-  },
-  
-  deployPictureInPicture (status, type, mediaProps) {
-    dispatch(deployPictureInPicture(status.get('id'), status.getIn(['account', 'id']), type, mediaProps));
   },
 
 });

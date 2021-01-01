@@ -202,7 +202,7 @@ export default class Card extends React.PureComponent {
     const className   = classnames('status-card', { horizontal, compact, interactive });
     const title       = interactive ? <a className='status-card__title' href={card.get('url')} title={card.get('title')} rel='noopener noreferrer' target='_blank'><strong>{card.get('title')}</strong></a> : <strong className='status-card__title' title={card.get('title')}>{card.get('title')}</strong>;
     const ratio       = card.get('width') / card.get('height');
-    let height      = (compact && !embedded) ? (width / (16 / 9)) : (width / ratio);
+    let height        = (compact && !embedded) ? (width / (16 / 9)) : (width / ratio);
 
     if (quote && height) {
       height /= 2;

@@ -31,7 +31,7 @@ export default class StatusContent extends React.PureComponent {
     hidden: true,
   };
 
-  _updateStatusLinks() {
+  _updateStatusLinks () {
     const node = this.node;
 
     if (!node) {
@@ -65,18 +65,18 @@ export default class StatusContent extends React.PureComponent {
 
     if (this.props.status.get('collapsed', null) === null) {
       let collapsed =
-        this.props.collapsable
-        && this.props.onClick
-        && node.clientHeight > MAX_HEIGHT
-        && this.props.status.get('spoiler_text').length === 0;
+          this.props.collapsable
+          && this.props.onClick
+          && node.clientHeight > MAX_HEIGHT
+          && this.props.status.get('spoiler_text').length === 0;
 
-      if (this.props.onCollapsedToggle) this.props.onCollapsedToggle(collapsed);
+      if(this.props.onCollapsedToggle) this.props.onCollapsedToggle(collapsed);
 
       this.props.status.set('collapsed', collapsed);
     }
   }
 
-  _updateStatusEmojis() {
+  _updateStatusEmojis () {
     const node = this.node;
 
     if (!node || autoPlayGif) {
@@ -97,12 +97,12 @@ export default class StatusContent extends React.PureComponent {
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this._updateStatusLinks();
     this._updateStatusEmojis();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate () {
     this._updateStatusLinks();
     this._updateStatusEmojis();
   }
@@ -140,8 +140,8 @@ export default class StatusContent extends React.PureComponent {
       return;
     }
 
-    const [startX, startY] = this.startXY;
-    const [deltaX, deltaY] = [Math.abs(e.clientX - startX), Math.abs(e.clientY - startY)];
+    const [ startX, startY ] = this.startXY;
+    const [ deltaX, deltaY ] = [Math.abs(e.clientX - startX), Math.abs(e.clientY - startY)];
 
     let element = e.target;
     while (element) {
@@ -173,7 +173,7 @@ export default class StatusContent extends React.PureComponent {
     this.node = c;
   }
 
-  render() {
+  render () {
     const { status, quote } = this.props;
 
     if (status.get('content').length === 0) {
@@ -234,7 +234,7 @@ export default class StatusContent extends React.PureComponent {
           {!quote && !hidden && !!status.get('poll') && <PollContainer pollId={status.get('poll')} />}
 
           {renderViewThread && showThreadButton}
-        </div >
+        </div>
       );
     } else if (this.props.onClick) {
       const output = [
@@ -260,7 +260,7 @@ export default class StatusContent extends React.PureComponent {
           {!quote && !!status.get('poll') && <PollContainer pollId={status.get('poll')} />}
 
           {renderViewThread && showThreadButton}
-        </div >
+        </div>
       );
     }
   }
