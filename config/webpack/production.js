@@ -89,7 +89,7 @@ module.exports = merge(sharedConfig, {
       ServiceWorker: {
         entry: `imports-loader?additionalCode=${encodeURIComponent(`var ATTACHMENT_HOST=${JSON.stringify(attachmentHost)};`)}!${encodeURI(path.join(__dirname, '../../app/javascript/mastodon/service_worker/entry.js'))}`,
         cacheName: 'mastodon',
-        output: '../assets/sw.js',
+        output: '../sw.js',
         publicPath: '/sw.js',
         minify: true,
       },
