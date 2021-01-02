@@ -140,6 +140,8 @@ RUN cd ~ && \
 
 # Create symlink for sw.js and 500.html
 RUN cd /opt/mastodon/public && \
+	rm -rf 500.html && \
+	rm -rf sw.js && \
 	ln -s assets/500.html 500.html && \
 	ln -s assets/sw.js sw.js
 
