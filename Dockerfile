@@ -138,6 +138,11 @@ RUN cd ~ && \
 	OTP_SECRET=precompile_placeholder SECRET_KEY_BASE=precompile_placeholder rails assets:precompile && \
 	yarn cache clean
 
+# Create symlink for sw.js and 500.html
+RUN cd /opt/mastodon/public && \
+	ln -s assets/500.html 500.html && \
+	ln -s assets/sw.js sw.js
+
 # Set the work dir and the container entry point
 WORKDIR /opt/mastodon
 ENTRYPOINT ["/tini", "--"]
